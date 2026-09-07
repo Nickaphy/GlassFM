@@ -1,4 +1,4 @@
-# filemgr
+# GlassFM
 
 A CLI file manager for Linux that shows you the real command behind every
 action — navigate with human-readable menus, learn the shell as you go.
