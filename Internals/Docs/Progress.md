@@ -1,0 +1,17 @@
+# GlassFM progress
+
+## Core operations (done)
+- **Copy.go**:
+- **CreateDir.go**
+- **CreateFile.go**
+- **DeleteDir.go**
+- **DeleteFile.go**
+- **GetWorkingDir.go**
+- **Move.go**
+- **ReadDir.go**
+- **Rename.go**
+
+## TUI - bubbletea (done)
+- **Initial boilerplate**
+- **Loop drawing of UI**
+- **j/k (vim) navigation**

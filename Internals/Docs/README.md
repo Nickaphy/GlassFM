@@ -36,3 +36,7 @@ This is a personal learning project first, an open-source tool second — but
 contributions, issues, and ideas are welcome. If you're here to learn Go or
 TUI development alongside building something real, that's exactly the spirit
 of the project.
+
+## Framework
+
+**TUI**: Bubbletea

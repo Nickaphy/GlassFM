@@ -1,17 +1,18 @@
 package main
 
 import (
-	"CLIfileManager/Internals/FileSystemOperations"
+	"CLIfileManager/Internals/TUI"
 	"fmt"
+	"os"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
-	// quick manual smoke test for GetWorkingDir - remove once the TUI drives these
-
-	wd, err := FileSystemOperations.GetWorkingDir()
-	if err != nil {
-		fmt.Println("GetWorkingDir error:", err)
-		return
+	// Entry point to TUI GUI
+	p := tea.NewProgram(TUI.NewModel())
+	if _, err := p.Run(); err != nil {
+		fmt.Println("error running program:", err)
+		os.Exit(1)
 	}
-	fmt.Println("current working dir:", wd)
 }
