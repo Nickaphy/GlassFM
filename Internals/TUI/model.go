@@ -31,22 +31,22 @@ const (
 	modePrompt               // command line: type a path (or later, a name)
 )
 
-// leaderCmd is one row in the SPC helper. help text matches Keybindings.md.
+// leaderCmd is one row in the SPC helper. help text matches.
 type leaderCmd struct {
 	name        string
 	help        string
-	implemented bool // false → listed, but not wired yet
+	implemented bool
 }
 
 // leaderCmds is the vocabulary after SPC. matchLeader uses this list;
 // submitPrompt is what actually runs a finished command.
 var leaderCmds = []leaderCmd{
 	{name: "cd", help: "jump to arbitrary path (type it)", implemented: true},
-	{name: "mk", help: "create file/dir (prompts which)"},
+	{name: "mk", help: "create dir"},
 	{name: "mv", help: "move selected"},
 	{name: "cp", help: "copy selected"},
 	{name: "rn", help: "rename selected"},
-	{name: "rm", help: "delete selected (with confirm)"},
+	{name: "rm", help: "delete selected)"},
 }
 
 // Model is the TUI's memory: what is on screen, and what the next key should do.
@@ -302,8 +302,7 @@ func (m Model) footer() string {
 	}
 }
 
-// promptBox is the shared chrome for any command prompt. Width follows the
-// terminal so the border reads as a bar, not a tiny sticker.
+// shares prompt-box for command prompts
 func (m Model) promptBox(inner string) string {
 	style := promptStyle
 	if m.width > 0 {
