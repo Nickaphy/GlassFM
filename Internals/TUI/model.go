@@ -14,6 +14,13 @@ var titleStyle = lipgloss.NewStyle().Bold(true)
 // a dark grey of the 256-color ramp actually recedes.
 var hintStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("238"))
 
+// promptStyle wraps every command line (cd mk/rn/… ) so input
+// reads as a distinct box, not another footer line.
+var promptStyle = lipgloss.NewStyle().
+	Border(lipgloss.RoundedBorder()).
+	BorderForeground(lipgloss.Color("244")).
+	Padding(0, 1)
+
 // uiMode says which input handler owns the keyboard.
 // Still one Model — this is not a second app, just which keys mean what.
 type uiMode int
@@ -186,7 +193,7 @@ func (m Model) handlePrompt(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// submitPrompt runs the finished command (currently only cd), then reloads
+// submitPrompt runs the finished command then reloads
 // cwd + items so View shows the new directory. Failures stay in the prompt.
 func (m Model) submitPrompt() (tea.Model, tea.Cmd) {
 	if m.command != "cd" {
@@ -225,8 +232,6 @@ func (m Model) submitPrompt() (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// matchLeader: done = exact command (open prompt), valid = still a prefix
-// of something in leaderCmds (keep collecting). Neither = abort.
 func matchLeader(buf string) (done bool, valid bool) {
 	for _, cmd := range leaderCmds {
 		if buf == cmd.name {
@@ -283,12 +288,11 @@ func (m Model) footer() string {
 		line += "\n" + hintStyle.Render("esc to cancel")
 		return line
 	case modePrompt:
-		line := m.command + " " + m.input + "█"
+		inner := m.command + " " + m.input + "█"
 		if m.status != "" {
-			line += "\n" + m.status
+			inner += "\n" + m.status
 		}
-		line += "\n" + hintStyle.Render("type a path, enter to go, esc to cancel")
-		return line
+		return m.promptBox(inner) + "\n" + hintStyle.Render("enter to confirm, esc to cancel")
 	default:
 		hint := hintStyle.Render("SPC for commands, q to quit")
 		if m.status != "" {
@@ -296,4 +300,17 @@ func (m Model) footer() string {
 		}
 		return hint
 	}
+}
+
+// promptBox is the shared chrome for any command prompt. Width follows the
+// terminal so the border reads as a bar, not a tiny sticker.
+func (m Model) promptBox(inner string) string {
+	style := promptStyle
+	if m.width > 0 {
+		innerWidth := m.width - style.GetHorizontalFrameSize()
+		if innerWidth > 0 {
+			style = style.Width(innerWidth)
+		}
+	}
+	return style.Render(inner)
 }
