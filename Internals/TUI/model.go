@@ -19,17 +19,18 @@ const (
 // Model is the TUI's memory: what is on screen, and what the next key should do.
 // Disk work stays in FileSystemOperations; this struct only stores results.
 type Model struct {
-	items   []string // names from ListDir for the current folder
-	cursor  int      // which row ">" sits on
-	cwd     string   // path shown at the top
-	width   int      // terminal width, from WindowSizeMsg
-	mode    uiMode   // browse / leader / prompt
-	leader  string   // partial command after SPC ("c", then "cd")
-	input   string   // text currently in the command line
-	command string   // command the prompt belongs to (e.g. "cd")
-	status  string   // errors / hints in the footer
-	flash   string   // brief "real command" toast after a successful action
-	flashID int      // bumps each flash so stale timers don't clear new ones
+	items      []string // names from ListDir for the current folder
+	cursor     int      // which row ">" sits on
+	cwd        string   // path shown at the top
+	width      int      // terminal width, from WindowSizeMsg
+	mode       uiMode   // browse / leader / prompt
+	leader     string   // partial command after SPC ("c", then "cd")
+	input      string   // text currently in the command line
+	command    string   // command the prompt belongs to (e.g. "cd")
+	status     string   // errors / hints in the footer
+	flash      string   // brief "real command" toast after a successful action
+	flashID    int      // bumps each flash so stale timers don't clear new ones
+	showHidden bool     // when false, names starting with "." are omitted
 }
 
 // NewModel is startup only: first cwd + first listing. Later refreshes
@@ -40,15 +41,9 @@ func NewModel() Model {
 		return Model{cwd: "unknown directory"}
 	}
 
-	items, err := FileSystemOperations.ListDir(cwd)
-	if err != nil {
-		items = nil
-	}
-
-	return Model{
-		items: items,
-		cwd:   cwd,
-	}
+	m := Model{cwd: cwd} // showHidden defaults to false (hide dotfiles)
+	m.items = m.loadItems()
+	return m
 }
 
 // Init is Bubble Tea's one-shot setup. nil = no extra work at launch.
@@ -84,11 +79,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // afterAction reloads the listing, clears the prompt, and shows a brief
 // toast of the real underlying command (GlassFM transparency).
 func (m Model) afterAction(shown string) (tea.Model, tea.Cmd) {
-	items, err := FileSystemOperations.ListDir(m.cwd)
-	if err != nil {
-		items = nil
-	}
-	m.items = items
+	m.items = m.loadItems()
+	m = m.withClampedCursor()
 	m.mode = modeBrowse
 	m.input = ""
 	m.command = ""

@@ -8,6 +8,7 @@
 
 Leader (SPC):
 `cd` - jump to arbitrary path (type it)
+`h` - toggle hidden files (dotfiles)
 `mk` - create file/dir (prompts which)
 `mv` - move selected
 `cp` - copy selected

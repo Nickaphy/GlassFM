@@ -11,12 +11,14 @@ type leaderCmd struct {
 	name        string
 	help        string
 	implemented bool
+	instant     bool // true = run on match, no prompt (e.g. toggles)
 }
 
 // leaderCmds is the vocabulary after SPC. matchLeader uses this list;
 // submitPrompt is what actually runs a finished command.
 var leaderCmds = []leaderCmd{
 	{name: "cd", help: "jump to arbitrary path (type it)", implemented: true},
+	{name: "h", help: "toggle hidden files", implemented: true, instant: true},
 	{name: "mk", help: "create dir (fails if it already exists)", implemented: true},
 	{name: "mv", help: "move selected"},
 	{name: "cp", help: "copy selected"},
@@ -25,7 +27,7 @@ var leaderCmds = []leaderCmd{
 }
 
 // handleLeader: build a command name one letter at a time.
-// Esc / unknown sequence → back to browse. A full match → open the prompt.
+// Esc / unknown sequence → back to browse. A full match → prompt or instant action.
 func (m Model) handleLeader(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "esc":
@@ -52,8 +54,12 @@ func (m Model) handleLeader(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.leader = ""
 			return m, nil
 		}
-		m.command = m.leader
+		cmd := m.leader
 		m.leader = ""
+		if leaderInstant(cmd) {
+			return m.runInstant(cmd)
+		}
+		m.command = cmd
 		m.input = ""
 		m.status = ""
 		m.mode = modePrompt
@@ -61,6 +67,7 @@ func (m Model) handleLeader(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+// matchLeader checks if the input matches a leader command.
 func matchLeader(buf string) (done bool, valid bool) {
 	for _, cmd := range leaderCmds {
 		if buf == cmd.name {
@@ -80,4 +87,26 @@ func leaderImplemented(name string) bool {
 		}
 	}
 	return false
+}
+
+// leaderInstant returns true if the command is an instant action.
+func leaderInstant(name string) bool {
+	for _, cmd := range leaderCmds {
+		if cmd.name == name {
+			return cmd.instant
+		}
+	}
+	return false
+}
+
+// runInstant runs an instant action (no prompt).
+func (m Model) runInstant(name string) (tea.Model, tea.Cmd) {
+	switch name {
+	case "h":
+		return m.toggleHidden()
+	default:
+		m.mode = modeBrowse
+		m.status = name + " is not implemented yet"
+		return m, nil
+	}
 }

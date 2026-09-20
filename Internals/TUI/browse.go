@@ -19,6 +19,15 @@ func (m Model) handleBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if m.cursor < len(m.items)-1 {
 			m.cursor++
 		}
+	case "left", "h":
+		// Parent directory — same path as shell "cd .."
+		return m.submitCd("..")
+	case "right", "l":
+		// Enter selected entry; ChangeDir fails (and status shows) if it is not a dir.
+		if len(m.items) == 0 {
+			return m, nil
+		}
+		return m.submitCd(m.items[m.cursor])
 	}
 	return m, nil
 }
