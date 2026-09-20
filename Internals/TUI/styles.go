@@ -14,3 +14,9 @@ var promptStyle = lipgloss.NewStyle().
 	Border(lipgloss.RoundedBorder()).
 	BorderForeground(lipgloss.Color("244")).
 	Padding(0, 1)
+
+// flashStyle is the brief "real command" toast after a successful action.
+// Bold + teal so it stands out without a border or plain white.
+var flashStyle = lipgloss.NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color("80"))

@@ -49,6 +49,9 @@ func (m Model) footer() string {
 		return m.promptBox(inner) + "\n" + hintStyle.Render("enter to confirm, esc to cancel")
 	default:
 		hint := hintStyle.Render("SPC for commands, q to quit")
+		if m.flash != "" {
+			return flashStyle.Render(m.flash) + "\n" + hint
+		}
 		if m.status != "" {
 			return m.status + "\n" + hint
 		}

@@ -19,5 +19,5 @@ func (m Model) submitCd(path string) (tea.Model, tea.Cmd) {
 	}
 	m.cwd = cwd
 	m.cursor = 0
-	return m.afterAction()
+	return m.afterAction("cd " + cwd) // return the executed command for flashing
 }

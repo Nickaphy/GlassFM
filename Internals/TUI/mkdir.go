@@ -2,6 +2,7 @@ package TUI
 
 import (
 	"CLIfileManager/Internals/FileSystemOperations"
+	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -13,5 +14,9 @@ func (m Model) submitMk(path string) (tea.Model, tea.Cmd) {
 		m.status = err.Error()
 		return m, nil
 	}
-	return m.afterAction()
+	shown := path
+	if abs, err := filepath.Abs(path); err == nil {
+		shown = abs
+	}
+	return m.afterAction("mkdir " + shown)
 }

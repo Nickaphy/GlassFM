@@ -26,17 +26,3 @@ for it.
 - **No training wheels that come off.** The tool behaves the same on day
   100 as it does on day one. Nothing fades away as you get more familiar
   with it.
-- **Small, single-purpose packages.** Filesystem logic, UI rendering, and
-  action definitions are kept in separate packages — see `CLAUDE.md` for
-  the internal architecture notes.
-
-## Contributing
-
-This is a personal learning project first, an open-source tool second — but
-contributions, issues, and ideas are welcome. If you're here to learn Go or
-TUI development alongside building something real, that's exactly the spirit
-of the project.
-
-## Framework
-
-**TUI**: Bubbletea

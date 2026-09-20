@@ -11,6 +11,10 @@
 - **ReadDir.go**
 - **Rename.go**
 
+## Commands
+- **SPC + cd** -> Change directory working
+- **SPC + mk** -> Create directory at path if path !exist
+
 ## TUI - bubbletea (done)
 - **Initial boilerplate**
 - **Loop drawing of UI**
