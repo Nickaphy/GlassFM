@@ -20,10 +20,10 @@ var leaderCmds = []leaderCmd{
 	{name: "cd", help: "jump to arbitrary path (type it)", implemented: true},
 	{name: "h", help: "toggle hidden files", implemented: true, instant: true},
 	{name: "mk", help: "create dir (fails if it already exists)", implemented: true},
-	{name: "mv", help: "move selected"},
-	{name: "cp", help: "copy selected"},
-	{name: "rn", help: "rename selected"},
-	{name: "rm", help: "delete selected (with confirm)"},
+	{name: "mv", help: "move selected (path or browse)", implemented: true},
+	{name: "cp", help: "copy selected (path or browse)", implemented: true},
+	{name: "rn", help: "rename selected", implemented: true},
+	{name: "rm", help: "delete selected (with confirm)", implemented: true},
 }
 
 // handleLeader: build a command name one letter at a time.
@@ -58,6 +58,18 @@ func (m Model) handleLeader(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.leader = ""
 		if leaderInstant(cmd) {
 			return m.runInstant(cmd)
+		}
+		if cmd == "cp" {
+			return m.startCopy()
+		}
+		if cmd == "mv" {
+			return m.startMove()
+		}
+		if cmd == "rn" {
+			return m.startRename()
+		}
+		if cmd == "rm" {
+			return m.startRemove()
 		}
 		m.command = cmd
 		m.input = ""

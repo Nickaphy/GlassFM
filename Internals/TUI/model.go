@@ -11,9 +11,10 @@ import (
 type uiMode int
 
 const (
-	modeBrowse uiMode = iota // file list: j/k, q, SPC
-	modeLeader               // after SPC: collect a command name like "cd"
-	modePrompt               // command line: type a path (or later, a name)
+	modeBrowse   uiMode = iota // file list: j/k, q, SPC
+	modeLeader                 // after SPC: collect a command name like "cd"
+	modePrompt                 // command line: type a path (or later, a name)
+	modePickDest               // browse to a destination (e.g. after SPC cp)
 )
 
 // Model is the TUI's memory: what is on screen, and what the next key should do.
@@ -23,7 +24,7 @@ type Model struct {
 	cursor     int      // which row ">" sits on
 	cwd        string   // path shown at the top
 	width      int      // terminal width, from WindowSizeMsg
-	mode       uiMode   // browse / leader / prompt
+	mode       uiMode   // browse / leader / prompt / pick
 	leader     string   // partial command after SPC ("c", then "cd")
 	input      string   // text currently in the command line
 	command    string   // command the prompt belongs to (e.g. "cd")
@@ -31,6 +32,7 @@ type Model struct {
 	flash      string   // brief "real command" toast after a successful action
 	flashID    int      // bumps each flash so stale timers don't clear new ones
 	showHidden bool     // when false, names starting with "." are omitted
+	pendingSrc string   // absolute path waiting for a destination (copy/move)
 }
 
 // NewModel is startup only: first cwd + first listing. Later refreshes
@@ -69,6 +71,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.handleLeader(msg)
 		case modePrompt:
 			return m.handlePrompt(msg)
+		case modePickDest:
+			return m.handlePickDest(msg)
 		default:
 			return m.handleBrowse(msg)
 		}
@@ -84,6 +88,7 @@ func (m Model) afterAction(shown string) (tea.Model, tea.Cmd) {
 	m.mode = modeBrowse
 	m.input = ""
 	m.command = ""
+	m.pendingSrc = ""
 	m.status = ""
 	m.flash = shown
 	m.flashID++

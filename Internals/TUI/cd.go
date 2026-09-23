@@ -6,18 +6,27 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// submitCd changes the process working directory, then refreshes the listing.
-func (m Model) submitCd(path string) (tea.Model, tea.Cmd) {
+// applyDir changes cwd and reloads the listing. Caller decides mode/flash.
+func (m Model) applyDir(path string) (Model, error) {
 	if err := FileSystemOperations.ChangeDir(path); err != nil {
-		m.status = err.Error()
-		return m, nil
+		return m, err
 	}
 	cwd, err := FileSystemOperations.GetWorkingDir()
+	if err != nil {
+		return m, err
+	}
+	m.cwd = cwd
+	m.cursor = 0
+	m.items = m.loadItems()
+	return m, nil
+}
+
+// submitCd changes the process working directory, then refreshes the listing.
+func (m Model) submitCd(path string) (tea.Model, tea.Cmd) {
+	next, err := m.applyDir(path)
 	if err != nil {
 		m.status = err.Error()
 		return m, nil
 	}
-	m.cwd = cwd
-	m.cursor = 0
-	return m.afterAction("cd " + cwd) // return the executed command for flashing
+	return next.afterAction("cd " + next.cwd)
 }
