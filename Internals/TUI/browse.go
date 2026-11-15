@@ -1,6 +1,11 @@
 package TUI
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"path/filepath"
+
+	"CLIfileManager/Internals/FileSystemOperations"
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 // handleBrowse: moving around the list. Space leaves browse and starts the leader.
 func (m Model) handleBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -28,6 +33,16 @@ func (m Model) handleBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		return m.submitCd(m.items[m.cursor])
+	case "enter":
+		// Open the selected entry in the default application for its file type.
+		if len(m.items) == 0 {
+			return m, nil
+		}
+		path := filepath.Join(m.cwd, m.items[m.cursor])
+		if err := FileSystemOperations.OpenSelectedEntry(path); err != nil {
+			m.status = err.Error()
+		}
+		return m, nil
 	}
 	return m, nil
 }
